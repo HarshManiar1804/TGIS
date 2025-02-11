@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import GeoRasterLayer from "georaster-layer-for-leaflet";
+// @ts-expect-error
 import georaster from "georaster";
 
 // Define land cover colors and corresponding labels
@@ -60,7 +61,7 @@ const Legend = () => {
     const map = useMap();
 
     useEffect(() => {
-        const legend = L.control({ position: "bottomright" });
+        const legend = new L.Control({ position: "bottomright" });
 
         legend.onAdd = () => {
             const div = L.DomUtil.create("div", "info legend");
@@ -100,7 +101,7 @@ const MahiLanduse = () => {
         <div style={{ height: "100vh", width: "100%" }}>
             <MapContainer center={[22.7754, 73.6149]} zoom={8} style={{ height: "100%", width: "100%" }}>
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    attribution='<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <GeoTIFFLayer url={'Mahi_Landuse.tif'} />

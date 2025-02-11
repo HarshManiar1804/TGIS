@@ -152,9 +152,10 @@ const MapComponent = ({ data }: MapComponentProps) => {
       setHoverCoordinates(coordinates);
 
       let hoveredRiver = false;
-      map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
+      map.forEachFeatureAtPixel(event.pixel, (_, layer) => {
         if (riverLayers.includes(layer as VectorLayer)) {
           hoveredRiver = true;
+
         }
       });
       setIsRiverLayerHovered(hoveredRiver);

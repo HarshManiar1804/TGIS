@@ -7,8 +7,13 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "skipLibCheck": true
     },
-    "types": ["georaster-layer-for-leaflet"]
+    "types": ["georaster-layer-for-leaflet"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   }
 }
