@@ -3,14 +3,16 @@ import { useState } from "react";
 import Navbar from "./components/NavBar";
 import { DataProvider } from "./context/dataContext";
 import { dataState } from "./lib/utils";
-const MahiLanduse = React.lazy(() => import("./components/MahiLanduse"));
+// const MahiLanduse = React.lazy(() => import("./components/MahiLanduse"));
 const MapComponent = React.lazy(() => import("./components/MapComponent"));
 import { Suspense } from 'react';
+import GoogleEarthLayer from "./components/GoogleEarthLayer";
+// import District from "./components/District";
+// import Talukas from "./components/Talukas";
 
 function App() {
   const [data, setData] = useState<dataState>({});
   const [landuse, setLanduse] = useState<boolean>(false);
-  console.log("landuse value in the div: ", landuse)
   return (
     <DataProvider>
       <div className="flex flex-row h-screen">
@@ -21,8 +23,10 @@ function App() {
         {/* MapComponent on the right, fixed */}
         <div className="w-3/4 h-full">
           <Suspense fallback={<div>Loading...</div>}>
-            {landuse ? <MahiLanduse /> : <MapComponent data={data} />}
+            {landuse ? <GoogleEarthLayer /> : <MapComponent data={data} />}
           </Suspense>
+          {/* <District /> */}
+          {/* <Talukas /> */}
         </div>
       </div>
     </DataProvider>

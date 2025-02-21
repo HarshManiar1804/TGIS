@@ -29,7 +29,6 @@ const GeoTIFFLayer = ({ url }: { url: string }) => {
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => georaster(arrayBuffer))
             .then(georasterData => {
-                console.log(`GeoTIFF Data Loaded from ${url}:`, georasterData);
 
                 const layer = new GeoRasterLayer({
                     georaster: georasterData,

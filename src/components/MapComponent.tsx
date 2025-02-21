@@ -219,10 +219,6 @@ const MapComponent = ({ data }: MapComponentProps) => {
           }
         }
       });
-
-      console.log("Clicked Basin:", clickedBasin);
-      console.log("Clicked River:", clickedRiver);
-
       // Update UI state
       setSelectedBasin(clickedBasin);
       setSelectedRiverInfo(clickedRiver);

@@ -7,8 +7,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "skipLibCheck": true
+      "@/*": ["./src/*"]
     },
     "types": ["georaster-layer-for-leaflet"],
     "moduleResolution": "node",
