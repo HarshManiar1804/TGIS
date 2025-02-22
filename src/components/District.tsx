@@ -1,59 +1,53 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { withAlpha } from "ol/color";
 
-// Define the TypeScript type for GeoJSON data
-interface GeoJSONFeature {
+interface GeoJsonFeature {
     type: string;
-    features: any[];
+    properties: {
+        NAME_2: string;
+    };
+    geometry: {
+        type: string;
+        coordinates: any;
+    };
 }
 
-const District: React.FC = () => {
-    const [districtData, setDistrictData] = useState<GeoJSONFeature | null>(null);
-    const [talukasData, setTalukasData] = useState<GeoJSONFeature | null>(null);
+interface GeoJsonData {
+    type: string;
+    features: GeoJsonFeature[];
+}
+
+const Disctrict: React.FC = () => {
+    const [geoJsonData, setGeoJsonData] = useState<GeoJsonData | null>(null);
+    const [districts, setDistricts] = useState<string[]>([]);
 
     useEffect(() => {
-        // Load GeoJSON data from a local file or API
-        fetch("/Districts.geojson") // Update with your GeoJSON file path
+        fetch("/Districts.geojson") // Update the path to your GeoJSON file
             .then((response) => response.json())
-            .then((data) => setDistrictData(data))
-            .catch((error) => console.error("Error loading GeoJSON:", error));
-
-        fetch("/Talukas.geojson") // Update with your GeoJSON file path
-            .then((response) => response.json())
-            .then((data) => setTalukasData(data))
+            .then((data: GeoJsonData) => {
+                setGeoJsonData(data);
+                const districtNames = data.features.map((feature) => feature.properties.NAME_2);
+                setDistricts(districtNames);
+                console.log(districtNames)
+            })
             .catch((error) => console.error("Error loading GeoJSON:", error));
     }, []);
 
-    // Function to style the GeoJSON layer
-    const talukaStyle = {
-        color: "black", // Border color
-        weight: 1, // Border thickness
-        fillOpacity: 0.3, // Adjust fill opacity
-        fillColor: "#cccccc", // Fill color (optional)
-    };
-    const DistrictStyle = {
-        color: "orange", // Border color
-        weight: 1, // Border thickness
-        fillOpacity: 0.3, // Adjust fill opacity
-        fillColor: "#cccccc", // Fill color (optional)   
-    }
-
     return (
-        <MapContainer
-            center={[23.6102, 80.5881]} // Default center (change as needed)
-            zoom={5}
-            style={{ height: "100%", width: "100%" }}
-        >
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            {districtData && <GeoJSON data={districtData} style={DistrictStyle} />}
-            {talukasData && <GeoJSON data={talukasData} style={talukaStyle} />}
-        </MapContainer>
+        <div>
+            {/* <h1>Districts of India</h1> */}
+            {/* <ul>
+                {districts.map((district, index) => (
+                    <li key={index}>{district}</li>
+                ))}
+            </ul> */}
+            <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: "100%", width: "100%" }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                {geoJsonData && <GeoJSON data={geoJsonData} />}
+            </MapContainer>
+        </div>
     );
 };
 
-export default District;
+export default Disctrict;

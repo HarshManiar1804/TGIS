@@ -164,9 +164,9 @@ export interface ChannelData {
 }
 
 export interface MapComponentProps {
-  data: {
-    [key: string]: ChannelData;
-  };
+  data: dataState;
+  selectedDistricts: string[];
+  selectedTalukas: string[];
 }
 
 export interface SubCheckboxes {
@@ -250,10 +250,14 @@ interface Data {
 }
 
 export interface NavbarProps {
-  data: Data;
-  setData: React.Dispatch<React.SetStateAction<Data>>;
+  data: dataState;
+  setData: (data: dataState) => void;
   landuse: boolean;
-  setLanduse: any;
+  setLanduse: (landuse: boolean) => void;
+  selectedDistricts: string[];
+  setSelectedDistricts: (districts: string[]) => void;
+  selectedTalukas: string[];
+  setSelectedTalukas: (talukas: string[]) => void;
 }
 
 import { FeatureCollection } from "geojson";
