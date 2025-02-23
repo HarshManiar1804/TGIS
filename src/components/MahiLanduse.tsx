@@ -98,7 +98,7 @@ const Legend = () => {
 const MahiLanduse = () => {
     return (
         <div style={{ height: "100vh", width: "100%" }}>
-            <MapContainer center={[22.7754, 73.6149]} zoom={8} style={{ height: "100%", width: "100%" }}>
+            <MapContainer center={[22.7754, 73.6149]} zoom={7.5} style={{ height: "100%", width: "100%" }}>
                 <TileLayer
                     attribution='<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

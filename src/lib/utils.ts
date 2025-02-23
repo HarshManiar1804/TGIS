@@ -167,6 +167,9 @@ export interface MapComponentProps {
   data: dataState;
   selectedDistricts: string[];
   selectedTalukas: string[];
+  road: boolean;
+  railway: boolean;
+  canals: boolean;
 }
 
 export interface SubCheckboxes {
@@ -254,6 +257,12 @@ export interface NavbarProps {
   setData: (data: dataState) => void;
   landuse: boolean;
   setLanduse: (landuse: boolean) => void;
+  road: boolean;
+  setRoad: (road: boolean) => void;
+  railway:boolean,
+  setRailway: (railway:boolean) => void ,
+  canals:boolean,
+  setCanals: (canals:boolean) => void,
   selectedDistricts: string[];
   setSelectedDistricts: (districts: string[]) => void;
   selectedTalukas: string[];

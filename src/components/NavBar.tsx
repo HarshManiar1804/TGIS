@@ -6,16 +6,23 @@ export default function Navbar({
   setData, 
   landuse, 
   setLanduse,
+  road,
+  setRoad,
   selectedDistricts,
   setSelectedDistricts,
   selectedTalukas,
-  setSelectedTalukas
+  setSelectedTalukas,
+  railway,
+  setRailway,
+  canals,
+  setCanals
 }: NavbarProps) {
   const [isBasinOpen, setIsBasinOpen] = useState(false);
   const [districts, setDistricts] = useState<string[]>([]);
   const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
-  
-  // State for talukas mapping and dropdown
+  const [isRoadDropdownOpen, setIsRoadDropdownOpen] = useState(false);
+  const [isRailwayDropdownOpen, setIsRailwayDropdownOpen] = useState(false);
+  const [isCanalDropdownOpen, setIsCanalDropdownOpen] = useState(false);
   const [talukas, setTalukas] = useState<Record<string, string[]>>({});
   const [availableTalukas, setAvailableTalukas] = useState<string[]>([]);
   const [isTalukaDropdownOpen, setIsTalukaDropdownOpen] = useState(false);
@@ -98,29 +105,32 @@ export default function Navbar({
             ? Object.fromEntries(subCheckboxes.map((sub) => [sub, false]))
             : {}, // Reset sub-checkboxes if unchecked
         },
-      };
+      } as dataState;
     });
   };
 
   // Handle sub-checkbox change
   const handleSubCheckboxChange = (channel: string, subValue: string) => {
-    setData((prevState: Record<string, { isChecked: boolean; subCheckboxes: Record<string, boolean> }>) => ({
-      ...prevState,
-      [channel]: {
-        ...prevState[channel],
-        subCheckboxes: {
-          ...prevState[channel]?.subCheckboxes,
-          [subValue]: !prevState[channel]?.subCheckboxes?.[subValue],
+    setData((prevState: Record<string, { isChecked: boolean; subCheckboxes: Record<string, boolean> }>) => {
+      const currentSubCheckboxes = prevState[channel]?.subCheckboxes || {};
+      return {
+        ...prevState,
+        [channel]: {
+          ...prevState[channel],
+          subCheckboxes: {
+            ...currentSubCheckboxes,
+            [subValue]: !currentSubCheckboxes[subValue],
+          },
         },
-      },
-    }));
+      } as dataState;
+    });
   };
 
   // Handle "Select All" checkbox change
   const handleSelectAllChange = () => {
     setData((prevState: Record<string, { isChecked: boolean; subCheckboxes: Record<string, boolean> }>) => {
       const allSelected = channels.every((channel) => prevState[channel]?.isChecked);
-      const newState = channels.reduce((acc, channel, index) => {
+      const newState: dataState = channels.reduce((acc, channel, index) => {
         const subCheckboxes = subCheckboxRanges[index + 1];
         acc[channel] = {
           isChecked: !allSelected,
@@ -129,7 +139,7 @@ export default function Navbar({
             : {}, // Reset sub-checkboxes if unchecking all
         };
         return acc;
-      }, {} as Record<string, { isChecked: boolean; subCheckboxes: Record<string, boolean> }>);
+      }, {} as dataState);
       return newState;
     });
   };
@@ -137,12 +147,62 @@ export default function Navbar({
   const handleLanduseChange = () => {
     setLanduse((prev: boolean) => !prev);
   };
+  const handleRoadChange = () => {
+    setRoad((prev: boolean) => !prev);
+  };
+  const handleRailwayChange = () => {
+    setRailway((prev: boolean) => !prev);
+  };
+  const handleCanalChange = () => {
+    setCanals((prev: boolean) => !prev);
+  };
 
   // Render component
   return (
     <>
       <div className="font-bold text-2xl p-4">Dashboard</div>
       <div className="flex-1 space-y-4 p-6 bg-gray-100 font-sans">
+
+        {/* Road Switch */}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+          <span className="text-lg font-semibold text-gray-700">Map Road</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={road}
+              onChange={handleRoadChange}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+{/* Railway Switch */}
+<div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+          <span className="text-lg font-semibold text-gray-700">Map Railway</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={railway}
+              onChange={handleRailwayChange}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+
+        {/* Canals Switch */}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+          <span className="text-lg font-semibold text-gray-700">Map Canals</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={canals}
+              onChange={handleCanalChange}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
 
         {/* Landuse Switch */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">

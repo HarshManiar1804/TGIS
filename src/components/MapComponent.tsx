@@ -15,7 +15,8 @@ import {
   defaultStyleOptionsRiver,
   MapComponentProps,
 } from "@/lib/utils";
-import { Stroke, Style } from "ol/style";
+import { Fill, Stroke, Style } from "ol/style";
+import CircleStyle from "ol/style/Circle";
 
 interface Basin {
   name: string;
@@ -30,7 +31,7 @@ interface RiverInfo {
   length: number;
 }
 
-const MapComponent = ({ data }: MapComponentProps) => {
+const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [layerList, setLayerList] = useState<string[]>([]);
   const [riverLayers, setRiverLayers] = useState<VectorLayer[]>([]);
@@ -90,20 +91,19 @@ const MapComponent = ({ data }: MapComponentProps) => {
       JSON.stringify(prev) !== JSON.stringify(updatedLayers) ? updatedLayers : prev
     );
   };
-
   useEffect(() => {
     fetchBasinLayer();
     fetchRiverLayers();
-  }, [data]);
+  }, [data, road]);
 
   useEffect(() => {
     const vectorLayers = layerList.map((file) =>
       createVectorLayer(file, defaultStyleOptionsBasin)
     );
-    const styleRiver = new Style({
-      stroke: new Stroke({
-        color: 'rgba(0, 0, 255, 0)'
-      })
+      const styleRiver = new Style({
+        stroke: new Stroke({
+          color: 'rgba(0, 0, 255, 0)'
+        })
     });
 
     const basinLayer = new VectorLayer({
@@ -113,6 +113,74 @@ const MapComponent = ({ data }: MapComponentProps) => {
       }),
       style: styleRiver,
     });
+
+    const canalLayer = new VectorLayer({
+      source: new VectorSource({
+        url: "/Canals.geojson", // Ensure correct path
+        format: new GeoJSON(),
+      }),
+      style: new Style({
+        stroke: new Stroke({
+          color: '#c19a6b', // Light brown color
+          width: 3, // Line thickness
+        }),
+        fill: new Fill({
+          color: 'rgba(193, 154, 107, 0.5)', // Semi-transparent light brown
+        }),
+      }),
+    });
+    
+
+    const railwayLayer = new VectorLayer({
+      source: new VectorSource({
+        url: "/Railway.geojson", // Ensure correct path
+        format: new GeoJSON(),
+      }),
+      style: new Style({
+        stroke: new Stroke({
+          color: 'black', // Railway tracks are usually black or dark gray
+          width: 2,
+          lineDash: [10, 5], // Dashed pattern to represent railway tracks
+        }),
+        image: new CircleStyle({
+          radius: 2, // Represents rail joints
+          fill: new Fill({ color: 'black' }),
+        }),
+      }),
+    });
+    
+    
+
+    const roadLayer = new VectorLayer({
+      source: new VectorSource({
+        url: "/Roads_layer.geojson",
+        format: new GeoJSON(),
+        loader: function (extent, resolution, projection) {
+          fetch("/Roads_layer.geojson")
+            .then(response => response.json())
+            .then(data => {
+              const features = new GeoJSON().readFeatures(data, {
+                featureProjection: projection, // Ensure correct projection
+              });
+    
+              // Filter features where the "Road" property contains "SH" or "NH"
+              const filteredFeatures = features.filter(feature => {
+                const roadType = feature.get("Road");
+                return roadType && (roadType.includes("SH") || roadType.includes("NH"));
+              });
+    
+              this.addFeatures(filteredFeatures);
+            });
+        }
+      }),
+      style: new Style({
+        stroke: new Stroke({
+          color: 'blue',
+          width: 1,
+        }),
+      }),
+    });
+    
 
     const streamsLayer = new VectorLayer({
       source: new VectorSource({
@@ -130,12 +198,15 @@ const MapComponent = ({ data }: MapComponentProps) => {
         }),
         basinLayer,
         streamsLayer,
+        ...(road ? [roadLayer] : []),
+        ...(railway ? [railwayLayer] : []),
+        ...(canals ? [canalLayer] : []),
         ...vectorLayers,
         ...riverLayers,
       ],
       view: new View({
         center: fromLonLat([73.6149, 22.7754]), // Adjust if needed
-        zoom: 8,
+        zoom: 7.5,
       }),
     });
 
@@ -224,7 +295,7 @@ const MapComponent = ({ data }: MapComponentProps) => {
       setSelectedRiverInfo(clickedRiver);
     });
     return () => map.setTarget(undefined);
-  }, [layerList, riverLayers]);
+  }, [layerList, riverLayers,road,railway,canals]);
 
   return (
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
@@ -263,11 +334,6 @@ const MapComponent = ({ data }: MapComponentProps) => {
           </div>
         </div>
       )}
-
-
-
-
-
     </div>
   );
 };
