@@ -106,6 +106,47 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
         })
     });
 
+    const styleTalukaBoundary = new Style({
+      stroke: new Stroke({
+        color: 'rgb(255, 0, 179)', // Strong orange for clear visibility
+        width: 2, 
+        lineDash: [6, 3] // Dashed pattern for differentiation
+      })
+    });
+    
+    const styleDistrictBoundary = new Style({
+      stroke: new Stroke({
+        color: 'rgb(104, 62, 255)', // Dark magenta for strong contrast
+        width: 3.5 // Thicker for prominence
+      })
+    });
+    
+
+    const canalStyle = new Style({
+      stroke: new Stroke({
+        color: 'rgb(215, 111, 0)', // Aqua blue for canal clarity
+        width: 2.5, 
+        lineDash: [8, 4] // Dashed to differentiate from rivers
+      }),
+      fill: new Fill({
+        color: 'rgba(0, 191, 255, 0.3)', // Light blue fill
+      }),
+    });
+    
+    const railwayStyle = new Style({
+      stroke: new Stroke({
+        color: 'rgb(138, 95, 154)', // Standard railway color
+        width: 2.5,
+        lineDash: [10, 5], // Dashed to represent railway tracks
+      }),
+    });
+
+    const roadStyle = new Style({
+      stroke: new Stroke({
+        color: 'rgba(0, 0, 0, 0.5)', // Dark gray, close to asphalt color
+        width: 2, // More visible
+      }),
+    });
     const basinLayer = new VectorLayer({
       source: new VectorSource({
         url: "/Mahi_Basins.geojson", // Ensure correct path
@@ -119,15 +160,7 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
         url: "/Canals.geojson", // Ensure correct path
         format: new GeoJSON(),
       }),
-      style: new Style({
-        stroke: new Stroke({
-          color: '#c19a6b', // Light brown color
-          width: 3, // Line thickness
-        }),
-        fill: new Fill({
-          color: 'rgba(193, 154, 107, 0.5)', // Semi-transparent light brown
-        }),
-      }),
+      style: canalStyle,
     });
     
 
@@ -136,19 +169,8 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
         url: "/Railway.geojson", // Ensure correct path
         format: new GeoJSON(),
       }),
-      style: new Style({
-        stroke: new Stroke({
-          color: 'black', // Railway tracks are usually black or dark gray
-          width: 2,
-          lineDash: [10, 5], // Dashed pattern to represent railway tracks
-        }),
-        image: new CircleStyle({
-          radius: 2, // Represents rail joints
-          fill: new Fill({ color: 'black' }),
-        }),
-      }),
+      style: railwayStyle,
     });
-    
     
 
     const roadLayer = new VectorLayer({
@@ -173,14 +195,8 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
             });
         }
       }),
-      style: new Style({
-        stroke: new Stroke({
-          color: 'blue',
-          width: 1,
-        }),
-      }),
+      style: roadStyle,
     });
-    
 
     const streamsLayer = new VectorLayer({
       source: new VectorSource({
@@ -188,6 +204,22 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
         format: new GeoJSON(),
       }),
       style: styleRiver,
+    });
+
+    const talukaBoundaryLayer = new VectorLayer({
+      source: new VectorSource({
+        url: "/TalukaBoundary.geojson", // Ensure correct path
+        format: new GeoJSON(),
+      }),
+      style:styleTalukaBoundary ,
+    });
+
+    const districtBoundaryLayer = new VectorLayer({
+      source: new VectorSource({
+        url: "/DistrictBoundary.geojson", // Ensure correct path
+        format: new GeoJSON(),
+      }),
+      style:styleDistrictBoundary ,
     });
 
     const map = new Map({
@@ -198,6 +230,8 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
         }),
         basinLayer,
         streamsLayer,
+        talukaBoundaryLayer,
+        districtBoundaryLayer,
         ...(road ? [roadLayer] : []),
         ...(railway ? [railwayLayer] : []),
         ...(canals ? [canalLayer] : []),
@@ -205,9 +239,10 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
         ...riverLayers,
       ],
       view: new View({
-        center: fromLonLat([73.6149, 22.7754]), // Adjust if needed
-        zoom: 7.5,
-      }),
+        center: fromLonLat([74.2684, 23.2803]), // Coordinates for Bagidora
+        zoom: 7.8,
+    }),
+    
     });
 
     const hoverOverlay = new Overlay({

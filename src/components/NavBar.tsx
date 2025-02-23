@@ -15,7 +15,9 @@ export default function Navbar({
   railway,
   setRailway,
   canals,
-  setCanals
+  setCanals,
+  theme,
+  setTheme
 }: NavbarProps) {
   const [isBasinOpen, setIsBasinOpen] = useState(false);
   const [districts, setDistricts] = useState<string[]>([]);
@@ -157,11 +159,47 @@ export default function Navbar({
     setCanals((prev: boolean) => !prev);
   };
 
+  // Handle theme selection
+  const handleThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setTheme(event.target.value);
+  };
+
   // Render component
   return (
     <>
       <div className="font-bold text-2xl p-4">Dashboard</div>
       <div className="flex-1 space-y-4 p-6 bg-gray-100 font-sans">
+
+        
+
+        {theme === 'hydrology' && (
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            {/* Mahi Basin Content */}
+            <span className="text-lg font-semibold text-gray-700">Mahi Basin</span>
+            {/* Add your Mahi Basin content here */}
+          </div>
+        )}
+
+        {theme === 'terrain' && (
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <span className="text-lg font-semibold text-gray-700">Terrain Options</span>
+            {/* Elevation Switch */}
+            <div>
+              <span>Elevation</span>
+              <input type="checkbox" />
+            </div>
+            {/* Aspect Switch */}
+            <div>
+              <span>Aspect</span>
+              <input type="checkbox" />
+            </div>
+            {/* Slope Switch */}
+            <div>
+              <span>Slope</span>
+              <input type="checkbox" />
+            </div>
+          </div>
+        )}
 
         {/* Road Switch */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
@@ -176,8 +214,8 @@ export default function Navbar({
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
-{/* Railway Switch */}
-<div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+{       /* Railway Switch */}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Railway</span>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -189,7 +227,6 @@ export default function Navbar({
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
-
         {/* Canals Switch */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Canals</span>
@@ -204,20 +241,36 @@ export default function Navbar({
           </label>
         </div>
 
-        {/* Landuse Switch */}
+        {/* Theme Selection Dropdown */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
-          <span className="text-lg font-semibold text-gray-700">Map Landuse</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={landuse}
-              onChange={handleLanduseChange}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+          <label className="text-lg font-semibold text-gray-700">Select Theme</label>
+          <select 
+            value={theme} 
+            onChange={handleThemeChange} 
+            className="mt-2 p-2 border border-gray-300 rounded-md"
+          >
+            <option value="landuse">Landuse</option>
+            <option value="hydrology">Hydrology</option>
+            <option value="terrain">Terrain</option>
+          </select>
         </div>
 
+        {/* Conditional Rendering based on selected theme */}
+        {theme === 'landuse' && (
+          <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+            {/* Mahi Landuse Switch */}
+            <span className="text-lg font-semibold text-gray-700">Map Landuse</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={landuse}
+                onChange={handleLanduseChange}
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        )}
         {/* Mahi Basin Dropdown */}
         <div className="bg-white rounded-lg shadow-sm">
           <div className="p-4 flex items-center justify-between">

@@ -17,6 +17,7 @@ function App() {
   const [canals, setCanals] = useState<boolean>(false);
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [selectedTalukas, setSelectedTalukas] = useState<string[]>([]);
+  const [theme, setTheme] = useState('landuse');
   
   return (
     <DataProvider>
@@ -38,6 +39,8 @@ function App() {
             setSelectedDistricts={setSelectedDistricts}
             selectedTalukas={selectedTalukas}
             setSelectedTalukas={setSelectedTalukas}
+            theme={theme}
+            setTheme={setTheme}
           />
         </div>
         {/* MapComponent on the right, fixed */}
