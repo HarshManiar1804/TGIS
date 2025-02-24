@@ -8,6 +8,7 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import GeoJSON from "ol/format/GeoJSON";
 import { Overlay } from "ol";
+import * as ol from 'ol';
 import {
   createVectorLayer,
   createVectorLayerForRiver,
@@ -15,8 +16,9 @@ import {
   defaultStyleOptionsRiver,
   MapComponentProps,
 } from "@/lib/utils";
-import { Fill, Stroke, Style } from "ol/style";
+import { Fill, Stroke, Style, Text } from "ol/style";
 import CircleStyle from "ol/style/Circle";
+import Legend from './Legend'; // Import the Legend component
 
 interface Basin {
   name: string;
@@ -108,45 +110,67 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
 
     const styleTalukaBoundary = new Style({
       stroke: new Stroke({
-        color: 'rgb(255, 0, 179)', // Strong orange for clear visibility
+        color: '#1f78b4', // Blue
         width: 2, 
-        lineDash: [6, 3] // Dashed pattern for differentiation
+        lineDash: [6, 2] // Dashed pattern
       })
     });
     
     const styleDistrictBoundary = new Style({
       stroke: new Stroke({
-        color: 'rgb(104, 62, 255)', // Dark magenta for strong contrast
-        width: 3.5 // Thicker for prominence
+        color: '#000000', // Black
+        width: 3, // Thicker for prominence
+        lineDash: [18, 6] // Long dashes with medium gaps
       })
     });
     
+   const canalStyle = new Style({
+  stroke: new Stroke({
+    color: '#2741ea', // Primary Blue
+    width: 2.5,
+    lineDash: [10, 5] // Dashed pattern to mimic canal flow
+  }),
+  text: new Text({
+    text: '— — — — —', // White dashes to overlay on blue stroke
+    font: 'bold 12px sans-serif',
+    fill: new Fill({ color: '#ffffff' }), // White dashed effect
+    placement: 'line',
+  }),
+  fill: new Fill({
+    color: 'rgba(39, 65, 234, 0.3)', // Light blue transparent fill
+  }),
+});
 
-    const canalStyle = new Style({
-      stroke: new Stroke({
-        color: 'rgb(215, 111, 0)', // Aqua blue for canal clarity
-        width: 2.5, 
-        lineDash: [8, 4] // Dashed to differentiate from rivers
-      }),
-      fill: new Fill({
-        color: 'rgba(0, 191, 255, 0.3)', // Light blue fill
-      }),
-    });
     
     const railwayStyle = new Style({
       stroke: new Stroke({
-        color: 'rgb(138, 95, 154)', // Standard railway color
+        color: '#e31a1c', // Red
         width: 2.5,
-        lineDash: [10, 5], // Dashed to represent railway tracks
+        lineDash: [10, 5], // Dashed with small perpendicular markers
       }),
+      text: new Text({
+      text: '| — | — | — | — |', // Mimicking railway track pattern
+      font: 'bold 14px sans-serif',
+      fill: new Fill({ color: '#e31a1c' }), // Red color for visibility
+      placement: 'line', // Aligns text along the railway line
+      })
     });
 
+    
     const roadStyle = new Style({
       stroke: new Stroke({
-        color: 'rgba(0, 0, 0, 0.5)', // Dark gray, close to asphalt color
-        width: 2, // More visible
+        color: '#878787', // Gray base color
+        width: 2, // Slightly thicker for visibility
       }),
+      text: new Text({
+        text: '— — — — —',
+        font: 'bold 12px sans-serif',
+        fill: new Fill({ color: '#ffffff' }),
+        placement: 'line',
+      })
     });
+    
+    
     const basinLayer = new VectorLayer({
       source: new VectorSource({
         url: "/Mahi_Basins.geojson", // Ensure correct path
@@ -336,11 +360,14 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
       <div ref={mapRef} style={{ flex: 1 }}></div>
 
+      {/* Legend Component */}
+      <Legend />
+
       {/* Hover Info */}
       {hoverCoordinates && (
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white bg-opacity-80 rounded text-center ml-32">
           <div>Lat & Lon: {hoverCoordinates.map((c) => c.toFixed(2)).join(", ")}</div>
-          <div>River: {isRiverLayerHovered ? "Yes" : "No"}</div>
+          <div>River: { isRiverLayerHovered ? "Yes" : "No"}</div>
         </div>
       )}
       {/* Basin Info Box */}
@@ -356,7 +383,6 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
           </div>
 
           {/* River Info Box */}
-
         </div>
       )}
       {selectedBasin && selectedRiverInfo && (

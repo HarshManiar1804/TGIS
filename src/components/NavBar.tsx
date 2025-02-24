@@ -169,38 +169,6 @@ export default function Navbar({
     <>
       <div className="font-bold text-2xl p-4">Dashboard</div>
       <div className="flex-1 space-y-4 p-6 bg-gray-100 font-sans">
-
-        
-
-        {theme === 'hydrology' && (
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            {/* Mahi Basin Content */}
-            <span className="text-lg font-semibold text-gray-700">Mahi Basin</span>
-            {/* Add your Mahi Basin content here */}
-          </div>
-        )}
-
-        {theme === 'terrain' && (
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <span className="text-lg font-semibold text-gray-700">Terrain Options</span>
-            {/* Elevation Switch */}
-            <div>
-              <span>Elevation</span>
-              <input type="checkbox" />
-            </div>
-            {/* Aspect Switch */}
-            <div>
-              <span>Aspect</span>
-              <input type="checkbox" />
-            </div>
-            {/* Slope Switch */}
-            <div>
-              <span>Slope</span>
-              <input type="checkbox" />
-            </div>
-          </div>
-        )}
-
         {/* Road Switch */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Road</span>
@@ -271,97 +239,126 @@ export default function Navbar({
             </label>
           </div>
         )}
-        {/* Mahi Basin Dropdown */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-4 flex items-center justify-between">
+
+        {theme === 'hydrology' && (
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            {/* Mahi Basin Content */}
             <span className="text-lg font-semibold text-gray-700">Mahi Basin</span>
-            <div className="flex items-center space-x-4">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  onChange={handleSelectAllChange}
-                  checked={channels.every((channel) => data[channel]?.isChecked)}
-                  disabled={landuse}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-              <button
-                onClick={() => setIsBasinOpen(!isBasinOpen)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg
-                  className={`w-6 h-6 transition-transform ${isBasinOpen ? 'transform rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+            {/* Add your Mahi Basin content here */}
+          </div>
+        )}
+
+        {theme === 'terrain' && (
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <span className="text-lg font-semibold text-gray-700">Terrain Options</span>
+            {/* Elevation Switch */}
+            <div className="flex items-center justify-between">
+              <span>Elevation</span>
+              <input type="checkbox" />
+            </div>
+            {/* Aspect Switch */}
+            <div className="flex items-center justify-between">
+              <span>Aspect</span>
+              <input type="checkbox" />
+            </div>
+            {/* Slope Switch */}
+            <div className="flex items-center justify-between">
+              <span>Slope</span>
+              <input type="checkbox" />
             </div>
           </div>
-
-          {/* Dropdown Content */}
-          {isBasinOpen && (
-            <div className="border-t">
-              {channels.map((channel, index) => {
-                const subCheckboxValues = subCheckboxRanges[index + 1];
-                return (
-                  <div key={channel} className="border-b last:border-b-0">
-                    <div className="p-4 flex items-center justify-between">
-                      <span className="text-base font-medium text-gray-700">
-                        {`Mahi Sub - Basin (MA - ${index + 1})`}
-                      </span>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          checked={data[channel]?.isChecked || false}
-                          onChange={() => handleChannelCheckboxChange(channel, subCheckboxValues)}
-                          disabled={landuse}
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-
-                    {/* Sub-categories */}
-                    {data[channel]?.isChecked && (
-                      <div className="bg-gray-50 p-4 space-y-3">
-                        {subCheckboxValues.map((subValue, subIndex) => (
-                          <div key={subValue} className="flex items-center justify-between pl-4">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-600">{subValue}</span>
-                              <div
-                                className={`bg-blue-500 ${
-                                  subIndex === 0 ? "w-5 h-0.5" :
-                                  subIndex === 1 ? "w-5 h-1" :
-                                  subIndex === 2 ? "w-5 h-1.5" :
-                                  subIndex === 3 ? "w-5 h-2" :
-                                  "w-5 h-2.5"
-                                }`}
-                              />
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={data[channel]?.subCheckboxes?.[subValue] || false}
-                                onChange={() => handleSubCheckboxChange(channel, subValue)}
-                                disabled={landuse}
-                              />
-                              <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+        )}
+        {/* Mahi Basin Dropdown */}
+        {theme === 'hydrology' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-4 flex items-center justify-between">
+              <span className="text-lg font-semibold text-gray-700">Mahi Basin</span>
+              <div className="flex items-center space-x-4">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    onChange={handleSelectAllChange}
+                    checked={channels.every((channel) => data[channel]?.isChecked)}
+                    disabled={landuse}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+                <button
+                  onClick={() => setIsBasinOpen(!isBasinOpen)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    className={`w-6 h-6 transition-transform ${isBasinOpen ? 'transform rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
             </div>
-          )}
-        </div>
+            {/* Dropdown Content */}
+            {isBasinOpen && (
+              <div className="border-t">
+                {channels.map((channel, index) => {
+                  const subCheckboxValues = subCheckboxRanges[index + 1];
+                  return (
+                    <div key={channel} className="border-b last:border-b-0">
+                      <div className="p-4 flex items-center justify-between">
+                        <span className="text-base font-medium text-gray-700">
+                          {`Mahi Sub - Basin (MA - ${index + 1})`}
+                        </span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={data[channel]?.isChecked || false}
+                            onChange={() => handleChannelCheckboxChange(channel, subCheckboxValues)}
+                            disabled={landuse}
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                      {/* Sub-categories */}
+                      {data[channel]?.isChecked && (
+                        <div className="bg-gray-50 p-4 space-y-3">
+                          {subCheckboxValues.map((subValue, subIndex) => (
+                            <div key={subValue} className="flex items-center justify-between pl-4">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm text-gray-600">{subValue}</span>
+                                <div
+                                  className={`bg-blue-500 ${
+                                    subIndex === 0 ? "w-5 h-0.5" :
+                                    subIndex === 1 ? "w-5 h-1" :
+                                    subIndex === 2 ? "w-5 h-1.5" :
+                                    subIndex === 3 ? "w-5 h-2" :
+                                    "w-5 h-2.5"
+                                  }`}
+                                />
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={data[channel]?.subCheckboxes?.[subValue] || false}
+                                  onChange={() => handleSubCheckboxChange(channel, subValue)}
+                                  disabled={landuse}
+                                />
+                                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
          {/* District Multi-Select Dropdown */}
          <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="relative">
