@@ -8,7 +8,7 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import GeoJSON from "ol/format/GeoJSON";
 import { Overlay } from "ol";
-import * as ol from 'ol';
+
 import {
   createVectorLayer,
   createVectorLayerForRiver,
@@ -17,7 +17,7 @@ import {
   MapComponentProps,
 } from "@/lib/utils";
 import { Fill, Stroke, Style, Text } from "ol/style";
-import CircleStyle from "ol/style/Circle";
+
 import Legend from './Legend'; // Import the Legend component
 
 interface Basin {
@@ -33,7 +33,7 @@ interface RiverInfo {
   length: number;
 }
 
-const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
+const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComponentProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [layerList, setLayerList] = useState<string[]>([]);
   const [riverLayers, setRiverLayers] = useState<VectorLayer[]>([]);
@@ -201,21 +201,20 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
       source: new VectorSource({
         url: "/Roads_layer.geojson",
         format: new GeoJSON(),
-        loader: function (extent, resolution, projection) {
+        loader: function (_extent, _resolution, projection) {
           fetch("/Roads_layer.geojson")
             .then(response => response.json())
             .then(data => {
               const features = new GeoJSON().readFeatures(data, {
-                featureProjection: projection, // Ensure correct projection
+                featureProjection: projection,
               });
-    
-              // Filter features where the "Road" property contains "SH" or "NH"
+
               const filteredFeatures = features.filter(feature => {
                 const roadType = feature.get("Road");
                 return roadType && (roadType.includes("SH") || roadType.includes("NH"));
               });
-    
-              this.addFeatures(filteredFeatures);
+
+              (this as VectorSource).addFeatures(filteredFeatures);
             });
         }
       }),
@@ -254,8 +253,8 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
         }),
         basinLayer,
         streamsLayer,
-        talukaBoundaryLayer,
-        districtBoundaryLayer,
+        ...(talukas ? [talukaBoundaryLayer] : []),
+        ...(districts ? [districtBoundaryLayer] : []),
         ...(road ? [roadLayer] : []),
         ...(railway ? [railwayLayer] : []),
         ...(canals ? [canalLayer] : []),
@@ -354,7 +353,7 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
       setSelectedRiverInfo(clickedRiver);
     });
     return () => map.setTarget(undefined);
-  }, [layerList, riverLayers,road,railway,canals]);
+  }, [layerList, riverLayers,road,railway,canals,talukas,districts]);
 
   return (
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
@@ -367,7 +366,10 @@ const MapComponent = ({ data ,road, railway, canals }: MapComponentProps) => {
       {hoverCoordinates && (
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white bg-opacity-80 rounded text-center ml-32">
           <div>Lat & Lon: {hoverCoordinates.map((c) => c.toFixed(2)).join(", ")}</div>
-          <div>River: { isRiverLayerHovered ? "Yes" : "No"}</div>
+          {
+            isRiverLayerHovered &&
+            <div>River: { isRiverLayerHovered ? "Yes" : "No"}</div>
+          }
         </div>
       )}
       {/* Basin Info Box */}

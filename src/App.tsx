@@ -15,8 +15,8 @@ function App() {
   const [landuse, setLanduse] = useState<boolean>(false);
   const [railway, setRailway] = useState<boolean>(false);
   const [canals, setCanals] = useState<boolean>(false);
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-  const [selectedTalukas, setSelectedTalukas] = useState<string[]>([]);
+  const [talukas, setTalukas] = useState<boolean>(false);
+  const [districts, setDistricts] = useState<boolean>(false);
   const [theme, setTheme] = useState('landuse');
   
   return (
@@ -35,10 +35,10 @@ function App() {
             setRailway={setRailway}
             canals={canals}
             setCanals={setCanals}
-            selectedDistricts={selectedDistricts}
-            setSelectedDistricts={setSelectedDistricts}
-            selectedTalukas={selectedTalukas}
-            setSelectedTalukas={setSelectedTalukas}
+            talukas={talukas}
+            setTalukas={setTalukas}
+            districts={districts}
+            setDistricts={setDistricts}
             theme={theme}
             setTheme={setTheme}
           />
@@ -51,8 +51,8 @@ function App() {
               road={road}
               railway={railway}
               canals={canals}
-              selectedDistricts={selectedDistricts}
-              selectedTalukas={selectedTalukas}
+              talukas={talukas}
+              districts={districts}
             />}
           </Suspense>
         </div>

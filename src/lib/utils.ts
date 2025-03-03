@@ -165,11 +165,11 @@ export interface ChannelData {
 
 export interface MapComponentProps {
   data: dataState;
-  selectedDistricts: string[];
-  selectedTalukas: string[];
   road: boolean;
   railway: boolean;
   canals: boolean;
+  talukas: boolean;
+  districts: boolean;
 }
 
 export interface SubCheckboxes {
@@ -263,10 +263,12 @@ export interface NavbarProps {
   setRailway: (railway:boolean) => void ,
   canals:boolean,
   setCanals: (canals:boolean) => void,
-  selectedDistricts: string[];
-  setSelectedDistricts: (districts: string[]) => void;
-  selectedTalukas: string[];
-  setSelectedTalukas: (talukas: string[]) => void;
+  talukas: boolean;
+  setTalukas: (talukas: boolean) => void;
+  districts: boolean;
+  setDistricts: (districts: boolean) => void;
+  theme : string;
+  setTheme : (theme: string) => void;
 }
 
 import { FeatureCollection } from "geojson";
