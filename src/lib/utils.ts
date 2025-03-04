@@ -170,8 +170,26 @@ export interface MapComponentProps {
   canals: boolean;
   talukas: boolean;
   districts: boolean;
+  theme: string;
+  landuse: boolean;
+  elevation: boolean;
+  slope: boolean;
+  aspect: boolean;
 }
 
+
+export interface Basin {
+  name: string;
+  number: number;
+  area: number;
+  perimeter: number;
+}
+export interface RiverInfo {
+  order: number;
+  basin: string;
+  segmentId: string;
+  length: number;
+}
 export interface SubCheckboxes {
   [subValue: string]: boolean;
 }
@@ -199,16 +217,7 @@ export interface DataProviderProps {
   children: ReactNode;
 }
 
-// Default style options for different map layers
-export const defaultStyleOptionsBasin = {
-  radius: 2,
-  circleFillColor: "red",
-  circleStrokeColor: "black",
-  circleStrokeWidth: 1,
-  lineStrokeColor: "red",
-  lineStrokeWidth: 1,
-  fillColor: "rgba(0, 0, 255, 0.1)",
-};
+ 
 
 export const defaultStyleOptionsRiver = {
   radius: 5,
@@ -252,7 +261,7 @@ interface Data {
   };
 }
 
-export interface NavbarProps {
+export interface  NavbarProps {
   data: dataState;
   setData: (data: dataState) => void;
   landuse: boolean;
@@ -269,6 +278,12 @@ export interface NavbarProps {
   setDistricts: (districts: boolean) => void;
   theme : string;
   setTheme : (theme: string) => void;
+  elevation: boolean;
+  setElevation: (elevation: boolean) => void;
+  slope: boolean;
+  setSlope: (slope: boolean) => void;
+  aspect: boolean;
+  setAspect: (aspect: boolean) => void;
 }
 
 import { FeatureCollection } from "geojson";

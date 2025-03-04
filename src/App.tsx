@@ -18,6 +18,9 @@ function App() {
   const [talukas, setTalukas] = useState<boolean>(false);
   const [districts, setDistricts] = useState<boolean>(false);
   const [theme, setTheme] = useState('landuse');
+  const [elevation, setElevation] = useState<boolean>(false);
+  const [slope, setSlope] = useState<boolean>(false);
+  const [aspect, setAspect] = useState<boolean>(false);
   
   return (
     <DataProvider>
@@ -41,19 +44,31 @@ function App() {
             setDistricts={setDistricts}
             theme={theme}
             setTheme={setTheme}
+            elevation={elevation}
+            setElevation={setElevation}
+            slope={slope}
+            setSlope={setSlope}
+            aspect={aspect}
+            setAspect={setAspect}
           />
         </div>
         {/* MapComponent on the right, fixed */}
         <div className="w-3/4 h-full">
           <Suspense fallback={<div>Loading...</div>}>
-            {landuse ? <GoogleEarthLayer /> : <MapComponent 
+             <MapComponent 
               data={data} 
               road={road}
               railway={railway}
               canals={canals}
               talukas={talukas}
               districts={districts}
-            />}
+              theme={theme}
+              landuse={landuse}
+              elevation={elevation}
+              slope={slope}
+              aspect={aspect}
+            />
+            
           </Suspense>
         </div>
       </div>

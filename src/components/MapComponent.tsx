@@ -8,11 +8,10 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import GeoJSON from "ol/format/GeoJSON";
 import { Overlay } from "ol";
-
+import XYZ from "ol/source/XYZ";
 import {
   createVectorLayer,
   createVectorLayerForRiver,
-  defaultStyleOptionsBasin,
   defaultStyleOptionsRiver,
   MapComponentProps,
 } from "@/lib/utils";
@@ -33,7 +32,7 @@ interface RiverInfo {
   length: number;
 }
 
-const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComponentProps) => {
+const MapComponent = ({ data ,road, railway, canals,talukas,districts,theme ,landuse,elevation,slope,aspect}: MapComponentProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [layerList, setLayerList] = useState<string[]>([]);
   const [riverLayers, setRiverLayers] = useState<VectorLayer[]>([]);
@@ -42,6 +41,15 @@ const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComp
   const [selectedRiverInfo, setSelectedRiverInfo] = useState<RiverInfo | null>(null);
   const [selectedBasin, setSelectedBasin] = useState<Basin | null>(null);
 
+  const defaultStyleOptionsBasin = {
+    radius: 2,
+    circleFillColor: (elevation || slope || aspect) ? "black" : "red",
+    circleStrokeColor: "black",
+    circleStrokeWidth: (elevation || slope || aspect) ? 1 : 2,
+    lineStrokeColor: (elevation || slope || aspect) ? "black" : "red",
+    lineStrokeWidth: (elevation || slope || aspect) ? 2 : 1,
+    fillColor: "rgba(0, 0, 255, 0.1)",
+  };
   const fetchRiverLayers = async () => {
     const geoJSONFiles: { fileName: string; channel: string }[] = [];
     const promises = [];
@@ -93,6 +101,7 @@ const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComp
       JSON.stringify(prev) !== JSON.stringify(updatedLayers) ? updatedLayers : prev
     );
   };
+
   useEffect(() => {
     fetchBasinLayer();
     fetchRiverLayers();
@@ -242,15 +251,37 @@ const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComp
         url: "/DistrictBoundary.geojson", // Ensure correct path
         format: new GeoJSON(),
       }),
-      style:styleDistrictBoundary ,
+      style: styleDistrictBoundary,
     });
 
+
+    const landuseBaseUrl = "https://earthengine.googleapis.com/v1/projects/ee-himani202302/maps/5c23e4dbf9085ff9159f65e3fa93a7ab-684a6ebf26eb1a8b6ef7a7c35661428f/tiles";
+    const elevationBaseUrl = "https://earthengine.googleapis.com/v1/projects/ee-himani202302/maps/439eab434f6b6bf51f39ee79b7348b1e-8f5fb4bbbb663a2d6333416ebc87728b/tiles";
+    const slopeBaseUrl = "https://earthengine.googleapis.com/v1/projects/ee-himani202302/maps/89b8d6eae9f54d5a31017d11935e99ce-2c164b9f13f68b0c9260b89eed0dd14f/tiles";
+    const aspectBaseUrl = "https://earthengine.googleapis.com/v1/projects/ee-himani202302/maps/93839358fb6a264f312d41dba03ae510-98bc62ca01dff4d74f6cd1d3d3b0b4f6/tiles";
+
+    const createXYZSource = (baseUrl: string) => new XYZ({
+      tileUrlFunction: (tileCoord: number[]) => {
+        if (!tileCoord) return '';
+        const [z, x, y] = tileCoord;
+        return `${baseUrl}/${z}/${x}/${y}`;
+      },
+      crossOrigin: 'anonymous',
+    });
+
+    const landuseSource = createXYZSource(landuseBaseUrl);
+    const elevationSource = createXYZSource(elevationBaseUrl);
+    const slopeSource = createXYZSource(slopeBaseUrl);
+    const aspectSource = createXYZSource(aspectBaseUrl);
+    console.log(landuse,elevation,slope,aspect);
     const map = new Map({
       target: mapRef.current || undefined,
       layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
+        new TileLayer({ source: new OSM() }),
+        ...(landuse ? [new TileLayer({ source: landuseSource })] : []),
+        ...(elevation ? [new TileLayer({ source: elevationSource })] : []),
+        ...(slope ? [new TileLayer({ source: slopeSource })] : []),
+        ...(aspect ? [new TileLayer({ source: aspectSource })] : []),
         basinLayer,
         streamsLayer,
         ...(talukas ? [talukaBoundaryLayer] : []),
@@ -262,11 +293,13 @@ const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComp
         ...riverLayers,
       ],
       view: new View({
-        center: fromLonLat([74.2684, 23.2803]), // Coordinates for Bagidora
+        center: fromLonLat([74.2684, 23.2803]),
         zoom: 7.8,
     }),
     
     });
+
+
 
     const hoverOverlay = new Overlay({
       element: document.createElement("div"),
@@ -353,7 +386,7 @@ const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComp
       setSelectedRiverInfo(clickedRiver);
     });
     return () => map.setTarget(undefined);
-  }, [layerList, riverLayers,road,railway,canals,talukas,districts]);
+  }, [layerList, riverLayers, road, railway, canals, talukas, districts, theme, landuse, elevation, slope, aspect]);
 
   return (
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
@@ -368,7 +401,7 @@ const MapComponent = ({ data ,road, railway, canals,talukas,districts }: MapComp
           <div>Lat & Lon: {hoverCoordinates.map((c) => c.toFixed(2)).join(", ")}</div>
           {
             isRiverLayerHovered &&
-            <div>River: { isRiverLayerHovered ? "Yes" : "No"}</div>
+            <div>River: {isRiverLayerHovered ? "Yes" : "No"}</div>
           }
         </div>
       )}

@@ -1,5 +1,5 @@
 import { channels, dataState, NavbarProps, subCheckboxRanges } from "@/lib/utils";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Navbar({ 
   data, 
@@ -8,7 +8,7 @@ export default function Navbar({
   setLanduse,
   road,
   setRoad,
-  railway,
+  railway,  
   setRailway,
   canals,
   setCanals,
@@ -17,9 +17,17 @@ export default function Navbar({
   districts,
   setDistricts,
   theme,
-  setTheme
+  setTheme, 
+  elevation,
+  setElevation,
+  slope,
+  setSlope,
+  aspect,
+  setAspect
 }: NavbarProps) {
   const [isBasinOpen, setIsBasinOpen] = useState(false);
+  const [isLanduseBasinOpen, setIsLanduseBasinOpen] = useState(false);
+  const [isTerrainBasinOpen, setIsTerrainBasinOpen] = useState(false);
 
 
   // Handle channel checkbox change
@@ -72,9 +80,7 @@ export default function Navbar({
       return newState;
     });
   };
-  const handleLanduseChange = () => {
-    setLanduse(!landuse);
-  };
+  
   const handleRoadChange = () => {
     setRoad(!road);
   };
@@ -91,9 +97,72 @@ export default function Navbar({
     setCanals(!canals);
   };
 
+  useEffect(() => {
+    setTheme('landuse');
+    setLanduse(true);
+  }, []);
   // Handle theme selection
   const handleThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setTheme(event.target.value);
+    const newTheme = event.target.value as 'landuse' | 'hydrology' | 'terrain';
+    setTheme(newTheme);
+    
+    // Reset all theme-specific states first
+    setLanduse(false);
+    setElevation(false);
+    setSlope(false);
+    setAspect(false);
+    
+    // Close basin section and reset data for non-hydrology themes
+    if (newTheme !== 'hydrology') {
+      setIsBasinOpen(false);
+    setIsLanduseBasinOpen(false);
+    setIsTerrainBasinOpen(false);
+      setData({} as dataState);
+    }
+    
+    // Enable specific features based on selected theme
+    switch (newTheme) {
+      case 'landuse':
+        setLanduse(true);
+        break;
+      case 'terrain':
+        setElevation(true); // Default to elevation
+       
+        break;
+      case 'hydrology':
+        // Automatically select all basins and their sub-checkboxes
+        const newState: dataState = channels.reduce((acc, channel, index) => {
+          const subCheckboxes = subCheckboxRanges[index + 1];
+          acc[channel] = {
+            isChecked: true,
+            subCheckboxes: Object.fromEntries(subCheckboxes.map((sub) => [sub, false]))
+          };
+          return acc;
+        }, {} as dataState);
+        setData(newState);
+        break;
+    }
+  };
+
+  // Handle terrain radio selection
+  const handleTerrainOptionChange = (option: 'elevation' | 'slope' | 'aspect') => {
+    // Reset all terrain options
+    setElevation(false);
+    setSlope(false);
+    setAspect(false);
+
+    // Set the selected option
+    switch (option) {
+      case 'elevation':
+        setElevation(true);
+        break;
+      case 'slope':
+        setSlope(true);
+        break;
+      case 'aspect':
+        setAspect(true);
+        break;
+    }
   };
 
   // Render component
@@ -101,72 +170,56 @@ export default function Navbar({
     <>
       <div className="font-bold text-2xl p-4">Dashboard</div>
       <div className="flex-1 space-y-4 p-6 bg-gray-100 font-sans">
-        {/* Districts Switch */}
+        {/* Districts Checkbox */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Districts</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={districts}
-              onChange={handleDistrictsChange}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+          <input
+            type="checkbox"
+            checked={districts}
+            onChange={handleDistrictsChange}
+            className="w-6 h-6"
+          />
         </div>
-        {/* Talukas Switch */}
+        {/* Talukas Checkbox */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Talukas</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={talukas}
-              onChange={handleTalukasChange}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+          <input
+            type="checkbox"
+            checked={talukas}
+            onChange={handleTalukasChange}
+            className="w-6 h-6"
+          />
         </div>
 
-        
-        {/* Road Switch */}
+        {/* Road Checkbox */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Road</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={road}
-              onChange={handleRoadChange}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+          <input
+            type="checkbox"
+            checked={road}
+            onChange={handleRoadChange}
+            className="w-6 h-6"
+          />
         </div>
-{       /* Railway Switch */}
+        {/* Railway Checkbox */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Railway</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={railway}
-              onChange={handleRailwayChange}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+          <input
+            type="checkbox"
+            checked={railway}
+            onChange={handleRailwayChange}
+            className="w-6 h-6"
+          />
         </div>
-        {/* Canals Switch */}
+        {/* Canals Checkbox */}
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <span className="text-lg font-semibold text-gray-700">Map Canals</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={canals}
-              onChange={handleCanalChange}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+          <input
+            type="checkbox"
+            checked={canals}
+            onChange={handleCanalChange}
+            className="w-6 h-6"
+          />
         </div>
 
         {/* Theme Selection Dropdown */}
@@ -185,71 +238,17 @@ export default function Navbar({
 
         {/* Conditional Rendering based on selected theme */}
         {theme === 'landuse' && (
-          <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
-            {/* Mahi Landuse Switch */}
-            <span className="text-lg font-semibold text-gray-700">Map Landuse</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={landuse}
-                onChange={handleLanduseChange}
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-        )}
-
-        {theme === 'hydrology' && (
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            {/* Mahi Basin Content */}
-            <span className="text-lg font-semibold text-gray-700">Mahi Basin</span>
-            {/* Add your Mahi Basin content here */}
-          </div>
-        )}
-
-        {theme === 'terrain' && (
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <span className="text-lg font-semibold text-gray-700">Terrain Options</span>
-            {/* Elevation Switch */}
-            <div className="flex items-center justify-between">
-              <span>Elevation</span>
-              <input type="checkbox" />
-            </div>
-            {/* Aspect Switch */}
-            <div className="flex items-center justify-between">
-              <span>Aspect</span>
-              <input type="checkbox" />
-            </div>
-            {/* Slope Switch */}
-            <div className="flex items-center justify-between">
-              <span>Slope</span>
-              <input type="checkbox" />
-            </div>
-          </div>
-        )}
-        {/* Mahi Basin Dropdown */}
-        {theme === 'hydrology' && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-4 flex items-center justify-between">
-              <span className="text-lg font-semibold text-gray-700">Mahi Basin</span>
-              <div className="flex items-center space-x-4">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    onChange={handleSelectAllChange}
-                    checked={channels.every((channel) => data[channel]?.isChecked)}
-                    disabled={landuse}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+          <>
+            {/* Landuse Basin Dropdown */}
+            <div className="bg-white rounded-lg shadow-sm">
+              <div className="p-4 flex items-center justify-between">
+                <span className="text-lg font-semibold text-gray-700">Landuse Basin</span>
                 <button
-                  onClick={() => setIsBasinOpen(!isBasinOpen)}
+                  onClick={() => setIsLanduseBasinOpen(!isLanduseBasinOpen)}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <svg
-                    className={`w-6 h-6 transition-transform ${isBasinOpen ? 'transform rotate-180' : ''}`}
+                    className={`w-6 h-6 transition-transform ${isLanduseBasinOpen ? 'transform rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -258,8 +257,51 @@ export default function Navbar({
                   </svg>
                 </button>
               </div>
+              {isLanduseBasinOpen && (
+                <div className="border-t">
+                  {channels.map((channel, index) => {
+                    const subCheckboxValues = subCheckboxRanges[index + 1];
+                    return (
+                      <div key={channel} className="border-b last:border-b-0">
+                        <div className="p-4 flex items-center justify-between">
+                          <span className="text-base font-medium text-gray-700">
+                            {`Landuse Sub - Basin (MA - ${index + 1})`}
+                          </span>
+                          <input
+                            type="checkbox"
+                            className="w-6 h-6"
+                            checked={data[channel]?.isChecked || false}
+                            onChange={() => handleChannelCheckboxChange(channel, subCheckboxValues)}
+                          />
+                        </div>
+                        
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-            {/* Dropdown Content */}
+          </>
+        )}
+
+        {theme === 'hydrology' && (
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="p-4 flex items-center justify-between">
+              <span className="text-lg font-semibold text-gray-700">Mahi Basin</span>
+              <button
+                onClick={() => setIsBasinOpen(!isBasinOpen)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg
+                  className={`w-6 h-6 transition-transform ${isBasinOpen ? 'transform rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
             {isBasinOpen && (
               <div className="border-t">
                 {channels.map((channel, index) => {
@@ -270,16 +312,12 @@ export default function Navbar({
                         <span className="text-base font-medium text-gray-700">
                           {`Mahi Sub - Basin (MA - ${index + 1})`}
                         </span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={data[channel]?.isChecked || false}
-                            onChange={() => handleChannelCheckboxChange(channel, subCheckboxValues)}
-                            disabled={landuse}
+                        <input
+                          type="checkbox"
+                          className="w-6 h-6"
+                          checked={data[channel]?.isChecked || false}
+                          onChange={() => handleChannelCheckboxChange(channel, subCheckboxValues)}
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
                       </div>
                       {/* Sub-categories */}
                       {data[channel]?.isChecked && (
@@ -298,16 +336,12 @@ export default function Navbar({
                                   }`}
                                 />
                               </div>
-                              <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  className="sr-only peer"
-                                  checked={data[channel]?.subCheckboxes?.[subValue] || false}
-                                  onChange={() => handleSubCheckboxChange(channel, subValue)}
-                                  disabled={landuse}
+                              <input
+                                type="checkbox"
+                                className="w-6 h-6"
+                                checked={data[channel]?.subCheckboxes?.[subValue] || false}
+                                onChange={() => handleSubCheckboxChange(channel, subValue)}
                                 />
-                                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                              </label>
                             </div>
                           ))}
                         </div>
@@ -318,6 +352,89 @@ export default function Navbar({
               </div>
             )}
           </div>
+        )}
+
+        {theme === 'terrain' && (
+          <>
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <span className="text-lg font-semibold text-gray-700 mb-4">Terrain Options</span>
+              {/* Elevation Radio */}
+              <div className="flex items-center justify-between mb-4">
+                <span>Elevation</span>
+                <input 
+                  type="radio" 
+                  name="terrainOption"
+                  checked={elevation}
+                  onChange={() => handleTerrainOptionChange('elevation')}
+                  className="w-6 h-6" 
+                />
+              </div>
+              {/* Aspect Radio */}
+              <div className="flex items-center justify-between mb-4">
+                <span>Aspect</span>
+                <input 
+                  type="radio"
+                  name="terrainOption"
+                  checked={aspect}
+                  onChange={() => handleTerrainOptionChange('aspect')}
+                  className="w-6 h-6" 
+                />
+              </div>
+              {/* Slope Radio */}
+              <div className="flex items-center justify-between mb-4">
+                <span>Slope</span>
+                <input 
+                  type="radio"
+                  name="terrainOption"
+                  checked={slope}
+                  onChange={() => handleTerrainOptionChange('slope')}
+                  className="w-6 h-6" 
+                />
+              </div>
+            </div>
+
+            {/* Terrain Basin Selection */}
+            <div className="bg-white rounded-lg shadow-sm">
+              <div className="p-4 flex items-center justify-between">
+                <span className="text-lg font-semibold text-gray-700">Terrain Basin</span>
+                <button
+                  onClick={() => setIsTerrainBasinOpen(!isTerrainBasinOpen)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    className={`w-6 h-6 transition-transform ${isTerrainBasinOpen ? 'transform rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              {isTerrainBasinOpen && (
+                <div className="border-t">
+                  {channels.map((channel, index) => {
+                    const subCheckboxValues = subCheckboxRanges[index + 1];
+                    return (
+                      <div key={channel} className="border-b last:border-b-0">
+                        <div className="p-4 flex items-center justify-between">
+                          <span className="text-base font-medium text-gray-700">
+                            {`Terrain Sub - Basin (MA - ${index + 1})`}
+                          </span>
+                          <input
+                            type="checkbox"
+                            className="w-6 h-6"
+                            checked={data[channel]?.isChecked || false}
+                            onChange={() => handleChannelCheckboxChange(channel, subCheckboxValues)}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </>
         )}
 
       </div>
